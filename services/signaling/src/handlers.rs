@@ -169,11 +169,11 @@ pub async fn check_room(
         )
             .into_response();
     }
-    
+
     let app_id = get_app_id(&params);
     let key = RoomKey {
-        app_id,
-        room_id: room,
+        app_id: app_id.clone(),
+        room_id: room.clone(),
     };
 
     match state.rooms.get(&key) {
@@ -193,18 +193,33 @@ pub async fn check_room(
         }
         None => {
             let password = params.get("password").cloned();
+            let max_peers = state.max_peers_per_room;
 
             state.rooms.insert(
                 key.clone(),
-                RoomState::with_capacity(state.max_peers_per_room, password.clone()),
+                RoomState::with_capacity(max_peers, password.clone()),
             );
 
+            state.rooms_created_today.fetch_add(
+                1,
+                std::sync::atomic::Ordering::Relaxed,
+            );
+
+            info!(
+                event = "room_auto_created",
+                room_id = room,
+                app_id = app_id,
+                max_peers = max_peers,
+                has_password = password.is_some(),
+                total_rooms = state.rooms.len(),
+                "Room automatically created from check_room endpoint"
+            );
             Json(serde_json::json!({
                 "exists": true,
-                "created": true,
-                "room": key.room_id,
-                "peers": 0,
-                "capacity": state.max_peers_per_room,
+                // "created": true,
+                // "room": key.room_id,
+                "peers": 1,
+                "capacity": max_peers,
                 "full": false,
                 "password_required": password.is_some()
             }))
