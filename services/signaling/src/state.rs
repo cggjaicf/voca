@@ -5,8 +5,8 @@ use nanoid::nanoid;
 use crate::types::SignalMessage;
 
 // === LIMITS ===
-pub const MAX_PEERS_PER_ROOM: usize = 6;
-pub const MAX_GLOBAL_ROOMS: usize = 10000;
+pub const MAX_PEERS_PER_ROOM: usize = 666;
+pub const MAX_GLOBAL_ROOMS: usize = 100000;
 
 const ROOM_SLUG_ALPHABET: [char; 36] = [
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
