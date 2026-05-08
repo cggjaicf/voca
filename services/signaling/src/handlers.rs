@@ -529,36 +529,19 @@ async fn handle_socket(socket: WebSocket, key: RoomKey, state: AppState) {
 
     tokio::time::sleep(Duration::from_millis(50)).await;
 
-    // Cleanup empty room
-    let should_remove = state
+    let remaining = state
         .rooms
         .get(&key)
-        .map(|r| r.peers.is_empty())
-        .unwrap_or(false);
-
-    if should_remove {
-        info!(
-            event = "room_ended",
-            room_id = key.room_id,
-            app_id = key.app_id,
-            "Room removed (no peers left)"
-        );
-        state.rooms.remove(&key);
-    } else {
-        let remaining = state
-            .rooms
-            .get(&key)
-            .map(|r| r.peers.len())
-            .unwrap_or(0);
-        info!(
-            event = "peer_left",
-            peer_id = peer_id,
-            room_id = key.room_id,
-            app_id = key.app_id,
-            remaining_peers = remaining,
-            "Peer left room"
-        );
-    }
+        .map(|r| r.peers.len())
+        .unwrap_or(0);
+    info!(
+        event = "peer_left",
+        peer_id = peer_id,
+        room_id = key.room_id,
+        app_id = key.app_id,
+        remaining_peers = remaining,
+        "Peer left room"
+    );
 }
 
 // ----------------------
