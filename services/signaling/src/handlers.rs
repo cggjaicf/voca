@@ -383,7 +383,31 @@ pub async fn ws_handler(
     // Check if room exists
     let room_ref = match state.rooms.get(&key) {
         Some(r) => r,
-        None => return StatusCode::NOT_FOUND.into_response(),
+        None => {
+            let password = params.get("password").cloned();
+
+            state.rooms.insert(
+                key.clone(),
+                RoomState::with_capacity(state.max_peers_per_room, password.clone()),
+            );
+
+            state.rooms_created_today.fetch_add(
+                1,
+                std::sync::atomic::Ordering::Relaxed,
+            );
+
+            info!(
+                event = "room_auto_created",
+                room_id = room,
+                app_id = app_id,
+                max_peers = state.max_peers_per_room,
+                has_password = password.is_some(),
+                total_rooms = state.rooms.len(),
+                "Room ID not found, auto-creating."
+            );
+
+            state.rooms.get(&key).unwrap()
+        },
     };
 
     // Check password and capacity, but accept connection to send proper error
