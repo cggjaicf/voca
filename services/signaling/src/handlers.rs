@@ -182,6 +182,12 @@ pub async fn check_room(
             let max_peers = room_state.max_peers;
             let is_full = peer_count >= max_peers;
             let password_required = room_state.password.is_some();
+            info!(
+                event = "found_room",
+                app_id = app_id,
+                room_id = room,
+                "Found Room!!!!"
+            );
             Json(serde_json::json!({
                 "exists": true,
                 "peers": peer_count,
