@@ -191,7 +191,25 @@ pub async fn check_room(
             }))
             .into_response()
         }
-        None => StatusCode::NOT_FOUND.into_response(),
+        None => {
+            let password = params.get("password").cloned();
+
+            state.rooms.insert(
+                key.clone(),
+                RoomState::with_capacity(state.max_peers_per_room, password.clone()),
+            );
+
+            Json(serde_json::json!({
+                "exists": true,
+                "created": true,
+                "room": key.room_id,
+                "peers": 0,
+                "capacity": state.max_peers_per_room,
+                "full": false,
+                "password_required": password.is_some()
+            }))
+            .into_response()
+        },
     }
 }
 
