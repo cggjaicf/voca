@@ -53,7 +53,7 @@ jobs:
           file: ./apps/web/Dockerfile
           push: true
           build-args: |
-            VITE_VOCA_API_KEY=CHANGE_ME_IN_COMPOSE
+            VITE_VOCA_API_KEY=${{ secrets.VOCA_API_KEY }} # sadly hardcoded on build :pensive:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web:${{ github.sha }}
